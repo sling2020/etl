@@ -1,7 +1,10 @@
 import logging as log
 from services.data_set_service import DataSetService
 
-data_set = DataSetService('Films_3.xlsx')
+log.basicConfig(
+    level=log.DEBUG
+)
+data_set = DataSetService('Films_2.xlsx')
 info_data_set = {
     'film': {
         'int_columns': ['film_id', 'release_year', 'language_id', 'original_language_id', 'rental_duration', 'length', 'num_voted_users'],
@@ -32,8 +35,8 @@ if data_set.data_frame_service != {}:
             table_name, current_table['int_columns'])
         data_set.process_float_columns(
             table_name, current_table['float_columns'])
+
     # TODO GUARDAR EN LA DB EL DATA SET
-    # TODO SISTEMA DE LOGS
-    # TODO EL DOCUMENTO
-    # TODO JOINS PARA RESOLVER LAS PREGUNTAS
-    # TODO SUBIR A GCP
+    # TODO MEJORAR SISTEMA DE LOGS
+    # TODO DOCUMENTO DATOS EXPLORATORIOS
+    # TODO SUBIR A GCP (Hace falta creditos)

@@ -1,5 +1,5 @@
 import logging as log
-import data_frames_builder as data_frames_builder
+import services.data_frames_builder as data_frames_builder
 
 
 class DataFrameService:
@@ -23,18 +23,26 @@ class DataFrameService:
 
     def integer_column_transform(self, table_id, columns):
         """        Applies a transform to convert the columns to integer        """
+        field_changed = 0
         for column in columns:
-            self.data_frames[table_id][column] = self.data_frames[table_id][column].apply(
-                lambda x: int(''.join(filter(str.isdigit, str(x)))))
-
+            data_frame_result = self.data_frames[table_id][column].apply(
+                lambda x: ''.join(filter(str.isdigit, str(x))))
+            # self.data_frames[table_id][column] = self.data_frames[table_id][column].apply(
+            #     lambda x: ''.join(filter(str.isdigit, str(x))))
+            field_changed += (
+                self.data_frames[table_id][column] != data_frame_result).sum()
+            self.data_frames[table_id][column] = data_frame_result
+        return field_changed
     # def boolean_column_transform(self, table_id, columns):
-    #     """        Applies a transform to convert the columns to integer        """
+    #     """        Applies a transform to convert the columns to boolean        """
     #     for column in columns:
     #         self.data_frames[table_id][column] = self.data_frames[table_id][column].apply(
     #             lambda x: int(''.join(filter(str.isdigit, str(x)))))
 
     def process_float_columns(self, table_id, columns):
         """        Applies a transform to convert the columns to float        """
+        field_changed = 0
+
         def expresion(x):
             x_result = ''.join(c for c in str(x) if c.isdigit() or c == '.')
             firtPos = x_result.find('.')
@@ -43,10 +51,14 @@ class DataFrameService:
 
             x_result = x_result[:firtPos + 1] + \
                 x_result[firtPos + 1:].replace('.', '')
-            return float(x_result)
+            return x_result
         for column in columns:
-            self.data_frames[table_id][column] = self.data_frames[table_id][column].apply(
+            data_frame_result = self.data_frames[table_id][column].apply(
                 expresion)
+            field_changed += (self.data_frames[table_id]
+                              [column] != data_frame_result).sum()
+            self.data_frames[table_id][column] = data_frame_result
+        return field_changed
 
     def get_data_frames(self):
         """   Return Array with all Data Frames        """

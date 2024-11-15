@@ -1,19 +1,37 @@
 import logging as log
 import pandas as pd
-from sqlalchemy import create_engine
+from google.cloud import bigquery
 
-# Crear una conexión a SQLite
-engine = create_engine('sqlite:///my_database.db')
+client = bigquery.Client()
 
-# Suponiendo que tienes un DataFrame llamado 'df'
-df = pd.DataFrame({'id': [1, 2], 'name': ['Alice', 'Bob'], 'age': [25, 30]})
 
-# Definir los tipos de datos al cargar en la base de datos
-dtype = {
-    'id': 'INTEGER',
-    'name': 'TEXT',
-    'age': 'INTEGER'
-}
+def sent_data_frame_to_bigquery(table_id, data_frame):
+    job_config = bigquery.LoadJobConfig(
+        # Specify a (partial) schema. All columns are always written to the
+        # table. The schema is used to assist in data type definitions.
+        schema=[
+            # Specify the type of columns whose type cannot be auto-detected. For
+            # example the "title" column uses pandas dtype "object", so its
+            # data type is ambiguous.
+            bigquery.SchemaField("title", bigquery.enums.SqlTypeNames.STRING),
+            # Indexes are written if included in the schema by name.
+            bigquery.SchemaField(
+                "wikidata_id", bigquery.enums.SqlTypeNames.STRING),
+        ],
+        # Optionally, set the write disposition. BigQuery appends loaded rows
+        # to an existing table by default, but with WRITE_TRUNCATE write
+        # disposition it replaces the table with the loaded data.
+        write_disposition="WRITE_TRUNCATE",
+    )
 
-# Cargar el DataFrame en una tabla llamada 'users', especificando los tipos de datos
-df.to_sql('users', con=engine, if_exists='replace', index=False, dtype=dtype)
+    job = client.load_table_from_dataframe(
+        data_frame, table_id, job_config=job_config
+    )  # Make an API request.
+    job.result()  # Wait for the job to complete.
+
+    table = client.get_table(table_id)  # Make an API request.
+    print(
+        "Loaded {} rows and {} columns to {}".format(
+            table.num_rows, len(table.schema), table_id
+        )
+    )
