@@ -16,16 +16,16 @@ El proyecto está construido sobre cuatro servicios principales, cada uno con un
   - Conexión y configuración de la base de datos.
   - Carga de registros a base de datos.
 
-   **`data_frame_service`**  
+**`data_frame_service`**  
   Proporciona utilidades para manipular DataFrames de forma genérica:
   - Limpieza de datos según tipo de datos por columna.
   - Aplicación de transformaciones comunes a datasets.
 
-  - **`data_frames_builder`**  
+**`data_frames_builder`**  
   Construye y prepara los DataFrames a partir de diferentes fuentes de datos:
   - Soporte para múltiples formatos [Por ahora solo Excel (`Films2.xlsx`)].
 
-  - **`data_set_service`**  
+**`data_set_service`**  
   Coordina el flujo de datos a lo largo de todo el ETL:
   - Orquestación de la extracción, transformación y carga.
   - Adaptación de las operaciones según las características de cada dataset [Por ahora solo (`Films2`)].
